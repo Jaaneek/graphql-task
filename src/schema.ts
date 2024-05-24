@@ -1,9 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
+import { GraphQLError } from "graphql";
+import { DateResolver, DateTypeDefinition } from "graphql-scalars";
 import { createSchema } from "graphql-yoga";
 
 const typeDefinitions = /* GraphQL */ `
-  scalar Date
+  ${DateTypeDefinition}
 
   type Organization {
     id: Int!
@@ -97,25 +98,8 @@ const applyTakeConstraints = (params: {
   return params.value;
 };
 
-const DateScalar = new GraphQLScalarType({
-  name: "Date",
-  description: "Custom Date scalar type",
-  parseValue(value: any) {
-    return new Date(value); // Convert incoming integer to Date
-  },
-  serialize(value: any) {
-    return value.toISOString(); // Convert Date to string for outgoing
-  },
-  parseLiteral(ast) {
-    if (ast.kind === Kind.STRING) {
-      return new Date(ast.value); // Convert hard-coded AST string to integer and then to Date
-    }
-    return null;
-  },
-});
-
 const resolvers = {
-  Date: DateScalar,
+  Date: DateResolver,
   Query: {
     async organizations(
       _parent: unknown,
